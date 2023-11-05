@@ -1,6 +1,5 @@
 import { TestServer } from './test-server';
 import { Tag } from '../src/models/product';
-import exp = require('constants');
 
 const server = TestServer.init({
   definitions: [Tag],
@@ -237,9 +236,7 @@ describe('Simple CRUD works', () => {
       },
     });
     expect(response).toEqual({
-      allTags: [
-        { id: expect.any(String), name: '80s' },
-      ],
+      allTags: [{ id: expect.any(String), name: '80s' }],
     });
   });
 

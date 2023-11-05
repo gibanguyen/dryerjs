@@ -1,5 +1,6 @@
 import { TestServer } from './test-server';
 import { Tag } from '../src/models/product';
+import exp = require('constants');
 
 const server = TestServer.init({
   definitions: [Tag],
@@ -179,6 +180,66 @@ describe('Simple CRUD works', () => {
         id: '000000000000000000000000',
       },
       errorMessageMustContains: 'No Tag found with ID: 000000000000000000000000',
+    });
+  });
+
+  it('Get all Tags with sort', async () => {
+    await server.makeSuccessRequest({
+      query: `
+        mutation CreateTag($input: CreateTagInput!) {
+          createTag(input: $input) {
+            id
+            name
+          }
+        }
+      `,
+      variables: {
+        input: {
+          name: '70s',
+        },
+      },
+    });
+
+    const response = await server.makeSuccessRequest({
+      query: `
+        query AllTags($sort : TagSort) {
+          allTags(sort: $sort) {
+            id
+            name
+          }
+        }
+      `,
+      variables: {
+        sort: { name: 'DESC' },
+      },
+    });
+    expect(response).toEqual({
+      allTags: [
+        { id: expect.any(String), name: '90s' },
+        { id: expect.any(String), name: '80s' },
+        { id: expect.any(String), name: '70s' },
+      ],
+    });
+  });
+
+  it('Get all Tags with filter', async () => {
+    const response = await server.makeSuccessRequest({
+      query: `
+        query AllTags($filter : TagFilter) {
+          allTags(filter: $filter) {
+            id
+            name
+          }
+        }
+      `,
+      variables: {
+        filter: { name: { all: '80s' } },
+      },
+    });
+    expect(response).toEqual({
+      allTags: [
+        { id: expect.any(String), name: '80s' },
+      ],
     });
   });
 
